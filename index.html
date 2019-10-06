@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="style.css" type="text/css" rel="stylesheet">
+    </head>
+    <body>
+        <div class = "container">
+            <div class = "displays">
+                <div class="display1"></div>
+                <div class="display2"></div>
+            </div>
+            <div class = "num">
+                <div class="numbers" data-key="7">7</div>
+                <div class="numbers" data-key="8">8</div>
+                <div class="numbers" data-key="9">9</div>
+                <div class="numbers" data-key="4">4</div>
+                <div class="numbers" data-key="5">5</div>
+                <div class="numbers" data-key="6">6</div>
+                <div class="numbers" data-key="1">1</div>
+                <div class="numbers" data-key="2">2</div>
+                <div class="numbers" data-key="3">3</div>
+                <div class="numbers" data-key="0">0</div>
+                <div class="numbers" data-key=".">.</div>
+                <div class="numbers equals" >=</div>
+            </div>
+            <div class = "operator">
+                <div class="operators">DEL</div>
+                <div class="operators" data-key="/">/</div>
+                <div class="operators" data-key="*">*</div>
+                <div class="operators" data-key="-">-</div>
+                <div class="operators" data-key="+">+</div>
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <script>
+            let displayValue1 = "";
+            let displayValue2 = "";
+            let number1;
+            let number2;
+            let operator;
+            let startNum2;
+
+            function add(num1,num2){
+                result = (((+num1) + (+num2)).toFixed(2));
+                return (result%Math.floor(result) == 0) ? result.toFixed() : result.toFixed(2); 
+            }
+            function subtract(num1,num2){
+                return (((+num1) - (+num2)).toFixed(2));
+                return (result%Math.floor(result) == 0) ? result.toFixed() : result.toFixed(2); 
+            } 
+            function multiply(num1,num2){
+                return (((+num1) * (+num2)).toFixed(2));
+                return (result%Math.floor(result) == 0) ? result.toFixed() : result.toFixed(2); 
+            }
+            function divide(num1,num2){
+                return (((+num1) / (+num2)).toFixed(2));
+                return (result%Math.floor(result) == 0) ? result.toFixed() : result.toFixed(2); 
+            }
+            function operate(num1,num2,operator){
+                switch (operator){
+                    case '+':
+                        return add(num1,num2);
+                        break;
+                    case '-':
+                        return subtract(num1,num2);
+                        break;
+                    case '*':
+                        return multiply(num1,num2);
+                        break;
+                    case '/':
+                        return divide(num1,num2);
+                        break;
+                    default:
+                        return "dont fuck with me";
+                }
+            }
+
+            function populateDisplay(e){
+                let buttonValue = (this.dataset.key) ? this.dataset.key : "" ;
+                let isOperator = /[^0-9.]/;
+                let isNumber = /[0-9.]/;
+
+                //entered an operator without a number
+                if (displayValue1 == "" && isOperator.test(buttonValue)){
+                    return;
+                }
+                //entered a number first time
+                if (displayValue1 == "" || !(isNumber.test(displayValue1))){
+                    display1.textContent += buttonValue;
+                    displayValue1 = display1.textContent;
+                    number1 = displayValue1;
+
+                    display2.textContent = number1;
+                }
+                //entered an operator first time
+                if (!(displayValue1 == "") && isOperator.test(buttonValue) && !(isOperator.test(displayValue1))){
+                    display1.textContent += buttonValue;
+                    displayValue1 = display1.textContent;
+                }
+                //entered an operator at least second time
+                if (!(displayValue1 == "") && isOperator.test(displayValue1) && isOperator.test(buttonValue)){
+                    if (isOperator.test(displayValue1.charAt(displayValue1.length - 1))){
+                        return;
+                    } else{
+                    display1.textContent += buttonValue;
+                    displayValue1 = display1.textContent;
+                    }
+                }
+                //entered a number at least second time
+                if (!(displayValue1 == "") && isOperator.test(displayValue1) && isNumber.test(buttonValue)){
+                    //what to display in display1
+                    display1.textContent += buttonValue;
+                    displayValue1 = display1.textContent;
+
+                    //what to display in display2 
+                    operator = displayValue1.split("");
+                    operator = operator.filter(opr => {
+                        return opr == "+" || opr == "-" || opr == "/" || opr == "*";
+                    });
+                    operator = operator[operator.length - 1];
+
+                    number2 = displayValue1.split("");
+                    startNum2 = number2.lastIndexOf(operator);
+                    number2 = number2.slice(startNum2 + 1);
+                    number2 = number2.join("");
+                    number2 = +number2;
+
+                    display2.textContent = +(operate(number1, number2, operator));
+                    number1 = +(display2.textContent);
+                }
+            }
+
+            function solve(){
+                //check if equation ends with operator              
+                let isOperator = /[^0-9.]/;
+                let endsWithOperator = display1.textContent.split("");
+                endsWithOperator = endsWithOperator[endsWithOperator.length -1];
+                if(isOperator.test(endsWithOperator)){
+                    return;
+                }
+
+                display1.textContent = display2.textContent;
+            }
+            
+            display1 = document.querySelector('.display1');
+            display2 = document.querySelector('.display2');
+            equals = document.querySelector('.equals');
+
+            numbers = Array.from(document.querySelectorAll('.numbers'));
+            numbers.forEach(number => number.addEventListener('click', populateDisplay));
+
+            operators = Array.from(document.querySelectorAll('.operators'));
+            operators.forEach(operator => operator.addEventListener('click', populateDisplay));
+
+            equals.addEventListener('click', solve);
+        </script>
+    </body>
+</html>
